@@ -75,12 +75,14 @@ function buildFilters(){
   let h='<select id="fM"><option value="">All Months</option>';
   months.forEach(m=>{h+=`<option value="${m}"${state.month===m?' selected':''}>${m}</option>`});
   h+='</select>';
+  h+='<label style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2);cursor:pointer;background:var(--sf);border:1px solid var(--sf2);padding:4px 10px;border-radius:6px"><input type="checkbox" id="fSens"'+(state.hideSens?' checked':'')+' style="accent-color:var(--blu)"> Exclude exec salaries</label>';
   
   if(needPerson){h+='<select id="fPer"><option value="">All People</option>';allPeople.forEach(p=>{h+=`<option value="${p}"${state.person===p?' selected':''}>${p}</option>`});h+='</select>';}
   if(needType){h+='<select id="fTy"><option value="">All Types</option>';allTypes.forEach(t=>{h+=`<option value="${t}"${state.type===t?' selected':''}>${t}</option>`});h+='</select>';}
   if(needSearch)h+=`<input id="fS" placeholder="Search projects..." value="${state.search}">`;
   fb.innerHTML=h;
   document.getElementById('fM').onchange=function(){state.month=this.value;render()};
+  document.getElementById('fSens').onchange=function(){state.hideSens=this.checked;render()};
   if(document.getElementById('fPer'))document.getElementById('fPer').onchange=function(){state.person=this.value;render()};
   if(document.getElementById('fTy'))document.getElementById('fTy').onchange=function(){state.type=this.value;render()};
   if(document.getElementById('fS'))document.getElementById('fS').oninput=function(){state.search=this.value.toLowerCase();render()};
@@ -88,6 +90,7 @@ function buildFilters(){
 
 function fMonthly(){
   let d=D.monthly;
+  if(state.hideSens)d=d.filter(r=>!r.s);
   if(state.month)d=d.filter(r=>r.m===state.month);
   if(state.person)d=d.filter(r=>r.p===state.person);
   if(state.type)d=d.filter(r=>r.t===state.type);
@@ -139,6 +142,7 @@ function renderOverview(ct){
 // ========== PROJECTS ==========
 function renderProjects(ct){
   let ppm=D.ppm;
+  if(state.hideSens)ppm=ppm.filter(r=>!r.s);
   if(state.month)ppm=ppm.filter(r=>r.m===state.month);
   const feats={};
   ppm.forEach(r=>{
@@ -174,6 +178,7 @@ function renderProjects(ct){
 // ========== PROJECT DETAIL ==========
 function renderProjectDetail(ct,proj){
   let ppm=D.ppm.filter(r=>r.f===proj);
+  if(state.hideSens)ppm=ppm.filter(r=>!r.s);
   if(state.month)ppm=ppm.filter(r=>r.m===state.month);
   const tc=ppm.reduce((s,r)=>s+r.c,0),th=ppm.reduce((s,r)=>s+r.h,0),tch=ppm.reduce((s,r)=>s+r.ch,0);
   const pplSet=new Set(ppm.map(r=>r.p)),mosSet=new Set(ppm.map(r=>r.m));
@@ -354,6 +359,7 @@ function renderPersonDetail(ct,person){
 // ========== PILLARS ==========
 function renderPillars(ct){
   let pd=D.pillar;
+  if(state.hideSens)pd=pd.filter(r=>!r.s);
   if(state.month)pd=pd.filter(r=>r.m===state.month);
   if(state.person)pd=pd.filter(r=>r.p===state.person);
   const pis={};
